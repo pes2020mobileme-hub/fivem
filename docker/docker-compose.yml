@@ -1,0 +1,97 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fivem-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: fivem_bot_ultimate
+      MYSQL_USER: fivem
+      MYSQL_PASSWORD: fivem_secret
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: fivem-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dashboard:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dashboard
+    container_name: fivem-dashboard
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      - DATABASE_URL=mysql://fivem:fivem_secret@mysql:3306/fivem_bot_ultimate
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=production
+    env_file:
+      - ../.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  discord-bot:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.bot
+    container_name: fivem-discord-bot
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=mysql://fivem:fivem_secret@mysql:3306/fivem_bot_ultimate
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=production
+    env_file:
+      - ../.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  ai-gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ai
+    container_name: fivem-ai-gateway
+    restart: unless-stopped
+    ports:
+      - '3002:3002'
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ../.env
+    depends_on:
+      - redis
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  default:
+    name: fivem-network

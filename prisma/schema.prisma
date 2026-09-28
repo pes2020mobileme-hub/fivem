@@ -1,0 +1,380 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================
+// Users & Auth
+// =====================
+
+model User {
+  id            String    @id @default(cuid())
+  discordId     String    @unique
+  username      String
+  discriminator String?
+  avatar        String?
+  email         String?
+  role          Role      @default(PLAYER)
+  isActive      Boolean   @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  characters    Character[]
+  bans          Ban[]       @relation("BannedBy")
+  whitelist     Whitelist?
+  tickets       Ticket[]
+  aiHistory     AIHistory[]
+  logs          Log[]
+
+  @@index([discordId])
+  @@index([role])
+}
+
+enum Role {
+  ADMIN
+  MODERATOR
+  SUPPORT
+  PLAYER
+}
+
+// =====================
+// Characters (ESX / QBCore)
+// =====================
+
+model Character {
+  id          String   @id @default(cuid())
+  userId      String
+  citizenId   String   @unique
+  license     String?
+  steamHex    String?
+  firstName   String
+  lastName    String
+  dateOfBirth String?
+  gender      String?
+  job         String   @default("unemployed")
+  jobGrade    Int      @default(0)
+  gang        String?
+  gangGrade   Int      @default(0)
+  cash        Decimal  @default(0) @db.Decimal(15, 2)
+  bank        Decimal  @default(0) @db.Decimal(15, 2)
+  blackMoney  Decimal  @default(0) @db.Decimal(15, 2)
+  crypto      Decimal  @default(0) @db.Decimal(15, 2)
+  health      Int      @default(200)
+  armor       Int      @default(0)
+  position    Json?
+  metadata    Json?
+  framework   Framework @default(QBCORE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicles    Vehicle[]
+  inventory   InventoryItem[]
+  transactions Transaction[]
+
+  @@index([citizenId])
+  @@index([license])
+  @@index([steamHex])
+  @@index([userId])
+}
+
+enum Framework {
+  ESX
+  QBCORE
+  STANDALONE
+}
+
+// =====================
+// Vehicles
+// =====================
+
+model Vehicle {
+  id          String   @id @default(cuid())
+  characterId String
+  plate       String   @unique
+  model       String
+  garage      String   @default("pillboxgarage")
+  state       VehicleState @default(STORED)
+  fuel        Float    @default(100)
+  engine      Float    @default(1000)
+  body        Float    @default(1000)
+  mods        Json?
+  insurance   Boolean  @default(false)
+  impounded   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  history     VehicleHistory[]
+
+  @@index([plate])
+  @@index([characterId])
+}
+
+enum VehicleState {
+  STORED
+  OUT
+  IMPOUNDED
+  DESTROYED
+}
+
+model VehicleHistory {
+  id        String   @id @default(cuid())
+  vehicleId String
+  action    String
+  details   Json?
+  createdAt DateTime @default(now())
+
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+}
+
+// =====================
+// Inventory
+// =====================
+
+model InventoryItem {
+  id          String   @id @default(cuid())
+  characterId String
+  name        String
+  label       String?
+  count       Int      @default(1)
+  slot        Int?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@index([name])
+}
+
+// =====================
+// Economy Transactions
+// =====================
+
+model Transaction {
+  id          String          @id @default(cuid())
+  characterId String
+  type        TransactionType
+  amount      Decimal         @db.Decimal(15, 2)
+  balanceType BalanceType
+  reason      String?
+  performedBy String?
+  createdAt   DateTime        @default(now())
+
+  character   Character       @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@index([createdAt])
+}
+
+enum TransactionType {
+  ADD
+  REMOVE
+  TRANSFER
+  RESET
+}
+
+enum BalanceType {
+  CASH
+  BANK
+  BLACK_MONEY
+  CRYPTO
+}
+
+// =====================
+// Jobs
+// =====================
+
+model Job {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  label       String
+  grades      Json
+  framework   Framework @default(QBCORE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// =====================
+// Bans
+// =====================
+
+model Ban {
+  id          String    @id @default(cuid())
+  targetId    String?
+  targetName  String?
+  identifiers Json
+  reason      String
+  type        BanType   @default(PERMANENT)
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  bannedById  String
+  discordSynced Boolean @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  bannedBy    User      @relation("BannedBy", fields: [bannedById], references: [id])
+
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+enum BanType {
+  TEMPORARY
+  PERMANENT
+  GLOBAL
+}
+
+// =====================
+// Whitelist
+// =====================
+
+model Whitelist {
+  id          String          @id @default(cuid())
+  userId      String          @unique
+  status      WhitelistStatus @default(PENDING)
+  reason      String?
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+enum WhitelistStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// =====================
+// Logs
+// =====================
+
+model Log {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      LogType
+  action    String
+  details   Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+enum LogType {
+  ADMIN
+  PLAYER
+  SYSTEM
+  ECONOMY
+  VEHICLE
+  BAN
+  WHITELIST
+  AI
+  CONSOLE
+  DISCORD
+}
+
+// =====================
+// Tickets
+// =====================
+
+model Ticket {
+  id          String       @id @default(cuid())
+  userId      String
+  subject     String
+  description String       @db.Text
+  status      TicketStatus @default(OPEN)
+  priority    Priority     @default(MEDIUM)
+  assignedTo  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  closedAt    DateTime?
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([userId])
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// =====================
+// Coupons
+// =====================
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  type        CouponType
+  value       Decimal   @db.Decimal(15, 2)
+  maxUses     Int       @default(1)
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum CouponType {
+  CASH
+  BANK
+  ITEM
+  VEHICLE
+}
+
+// =====================
+// AI History
+// =====================
+
+model AIHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  model     String
+  prompt    String   @db.LongText
+  response  String   @db.LongText
+  tokens    Int?
+  type      AIType   @default(CHAT)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum AIType {
+  CHAT
+  BUILD
+  ANALYZE
+  SCRIPT
+}
