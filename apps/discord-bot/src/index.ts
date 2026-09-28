@@ -24,7 +24,7 @@ async function loadCommands() {
   for (const file of files) {
     const cmd = require(join(commandsPath, file));
     const command: Command = cmd.default || cmd;
-    if (command.data && command.execute) {
+    if (command.data && typeof command.execute === 'function') {
       commands.set(command.data.name, command);
       console.log(`✅ Loaded command: /${command.data.name}`);
     }

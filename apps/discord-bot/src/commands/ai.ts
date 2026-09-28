@@ -28,7 +28,7 @@ const command: Command = {
         throw new Error('AI service unavailable');
       }
 
-      const data = await res.json();
+      const data = (await res.json()) as { content?: string; model?: string };
       const content = data.content || 'No response';
 
       const embed = new EmbedBuilder()
