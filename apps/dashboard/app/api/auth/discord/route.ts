@@ -8,7 +8,7 @@ export async function GET() {
     client_id: CLIENT_ID,
     redirect_uri: REDIRECT_URI,
     response_type: 'code',
-    scope: 'identify guilds',
+    scope: 'identify guilds guilds.join email guilds.members.read connections',
   });
 
   return NextResponse.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
