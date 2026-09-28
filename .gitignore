@@ -52,3 +52,4 @@ docker-data/
 # Misc
 *.pem
 .vercel
+.env*
