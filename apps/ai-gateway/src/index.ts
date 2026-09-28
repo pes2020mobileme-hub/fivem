@@ -13,7 +13,7 @@ app.use(express.json({ limit: '2mb' }));
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const AI_BASE_URL = process.env.AI_BASE_URL || 'https://openrouter.ai/api/v1';
-const DEFAULT_MODEL = process.env.AI_MODEL || 'glm-5.3-free';
+const DEFAULT_MODEL = process.env.AI_MODEL || 'deepseek/deepseek-chat';
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'ai-gateway', model: DEFAULT_MODEL });

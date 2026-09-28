@@ -118,7 +118,7 @@ See `.env.example` for the full list.
 | `DISCORD_CLIENT_ID`   | OAuth client ID                      |
 | `DISCORD_CLIENT_SECRET` | OAuth secret                       |
 | `OPENROUTER_API_KEY`  | OpenRouter API key                   |
-| `AI_MODEL`            | Default model (e.g. `glm-5.3-free`)  |
+| `AI_MODEL`            | Default model (e.g. `deepseek/deepseek-chat`) |
 | `FIVEM_SERVER`        | e.g. `http://127.0.0.1:30120`        |
 | `TXADMIN_URL`         | Optional txAdmin endpoint            |
 | `TXADMIN_TOKEN`       | Optional txAdmin token               |
@@ -150,7 +150,7 @@ See `.env.example` for the full list.
 
 1. Get API key at [openrouter.ai](https://openrouter.ai)
 2. Set `OPENROUTER_API_KEY` and `AI_MODEL`
-3. Supported locked models: `glm-5.3-free`, DeepSeek V3, DeepSeek R1, Z.ai
+3. Supported locked models: DeepSeek V3 (`deepseek/deepseek-chat`), DeepSeek R1 (`deepseek/deepseek-r1`), Z.ai GLM (`z-ai/glm-5.2`)
 
 AI Studio modes:
 - **Admin Assistant** — general help

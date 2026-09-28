@@ -1,17 +1,16 @@
 /**
  * OpenRouter AI Client
- * Supports GLM-5.3-Free, DeepSeek V3, DeepSeek R1, Z.ai
+ * Supports DeepSeek V3, DeepSeek R1, Z.ai GLM
  */
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const AI_BASE_URL = process.env.AI_BASE_URL || 'https://openrouter.ai/api/v1';
-const DEFAULT_MODEL = process.env.AI_MODEL || 'glm-5.3-free';
+const DEFAULT_MODEL = process.env.AI_MODEL || 'deepseek/deepseek-chat';
 
 export const ALLOWED_MODELS = [
-  'glm-5.3-free',
   'deepseek/deepseek-chat',
   'deepseek/deepseek-r1',
-  'z-ai/z1',
+  'z-ai/glm-5.2',
 ] as const;
 
 export type AIModel = (typeof ALLOWED_MODELS)[number];

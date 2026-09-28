@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     await prisma.aIHistory.create({
       data: {
         userId: session.userId,
-        model: selectedModel || process.env.AI_MODEL || 'glm-5.3-free',
+        model: selectedModel || process.env.AI_MODEL || 'deepseek/deepseek-chat',
         prompt: messages[messages.length - 1]?.content || '',
         response: content,
         tokens,
