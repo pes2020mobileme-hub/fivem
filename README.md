@@ -60,7 +60,6 @@ FiveM-Bot-Ultimate-V3/
 │   ├── standalone/
 │   └── ai-npc/
 ├── .github/workflows/ci.yml
-├── vercel.json
 └── package.json
 ```
 
@@ -183,11 +182,17 @@ Services:
 ## Vercel Deploy
 
 1. Push repo to GitHub
-2. Import project in Vercel (root or `apps/dashboard`)
-3. Set environment variables in Vercel dashboard
-4. Deploy
+2. Import project in Vercel with **Root Directory = `apps/dashboard`**
+3. Leave Framework Preset on `Next.js` — no build command override needed
+4. Set environment variables in Vercel dashboard
+5. Deploy
 
-`vercel.json` is included for production configuration.
+`apps/dashboard/vercel.json` must sit next to `next.config.ts`; Vercel only reads
+`vercel.json` from the configured Root Directory. Note that Hobby plan only
+allows the `iad1` region, so no `regions` key is set.
+
+`prisma generate` runs automatically via the `prebuild` script in
+`apps/dashboard/package.json`, so no manual build step is required.
 
 ---
 

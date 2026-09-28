@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
+    "prebuild": "prisma generate --schema=../../prisma/schema.prisma",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
