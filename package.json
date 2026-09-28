@@ -24,7 +24,7 @@
     "docker:down": "docker compose -f docker/docker-compose.yml down",
     "docker:build": "docker compose -f docker/docker-compose.yml build",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "prepare": "husky install || true"
+    "prepare": "husky install || exit 0"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -42,5 +42,12 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "npm@10.9.0"
+  "packageManager": "npm@10.9.0",
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "prisma@5.22.0": true,
+    "esbuild@0.28.2": true,
+    "unrs-resolver@1.12.2": true
+  }
 }
