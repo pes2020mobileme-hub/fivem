@@ -19,7 +19,9 @@ const commands = new Collection<string, Command>();
 
 async function loadCommands() {
   const commandsPath = join(__dirname, 'commands');
-  const files = readdirSync(commandsPath).filter((f) => f.endsWith('.ts') || f.endsWith('.js'));
+  const files = readdirSync(commandsPath).filter(
+    (f) => !f.endsWith('.d.ts') && (f.endsWith('.ts') || f.endsWith('.js'))
+  );
 
   for (const file of files) {
     const cmd = require(join(commandsPath, file));
