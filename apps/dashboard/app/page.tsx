@@ -27,7 +27,7 @@ export default function HomePage() {
             <Link href="/dashboard" className="cyber-btn-primary px-8 py-3 text-base">
               Open Dashboard
             </Link>
-            <Link href="/api/auth/signin" className="cyber-btn px-8 py-3 text-base">
+            <Link href="/api/auth/discord" className="cyber-btn px-8 py-3 text-base">
               Login with Discord
             </Link>
           </div>
