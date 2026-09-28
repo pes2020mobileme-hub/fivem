@@ -1,0 +1,16 @@
+services:
+  - type: worker
+    name: fivem-discord-bot
+    runtime: node
+    rootDir: apps/discord-bot
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    autoDeploy: true
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: FIVEM_SERVER
+        sync: false
